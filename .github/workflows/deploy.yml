@@ -22,6 +22,6 @@ jobs:
           username: ubuntu                
           key: ${{ secrets.SSH_KEY }}
           script: |
-            cd ./Api
+            cd ./POC
             git pull origin main
-            ../deploy.sh
+            ./executar.sh
