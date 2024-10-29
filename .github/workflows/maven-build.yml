@@ -1,7 +1,4 @@
-# This workflow will build a Java project with Maven, and cache/restore any dependencies to improve the workflow execution time
-# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
-
-name: Java CI with Maven
+name: Deploy
 
 on:
   push:
@@ -10,20 +7,21 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
-
+  deploy:
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        java: [ '17' ]
 
     steps:
-      - uses: actions/checkout@v4
-      - name: Set up JDK ${{matrix.java}}
-        uses: actions/setup-java@v4
+      - name: Check out the repository
+        uses: actions/checkout@v3
+
+      - name: Deploy to Remote Server
+        uses: appleboy/ssh-action@master
         with:
-          java-version: ${{matrix.java}}
-          distribution: 'adopt'
-          cache: maven
-      - name: Build with Maven Wrapper
-        run: ./mvnw -B package
+          host: ${{ secrets.HOST }} 
+          username: ubuntu                
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            cd ./Api
+            git pull origin main
+            ../deploy.sh
